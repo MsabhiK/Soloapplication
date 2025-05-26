@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
+    <title>Analyse des mesures</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f8f9fa;
+            font-size: 14px;
+        }
+        .result {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 5px solid;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .success { border-left-color: #28a745; }
+        .warning { border-left-color: #ffc107; }
+        .danger  { border-left-color: #dc3545; }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+         <h3 class="mb-0">📊 Résultats de l'analyse</h3>
+         <button class="btn btn-outline-secondary btn-sm" onclick="resetAnalysis()">
+               Réinitialiser
+         </button>
+   </div>
+    <div id="summary"></div>
+    <div id="results"></div>
+
+    <script>
+        const data = JSON.parse(localStorage.getItem("interpretationData") || "[]");
+
+        const summaryDiv = document.getElementById("summary");
+        const resultsDiv = document.getElementById("results");
+
+        if (!data.length) {
+            summaryDiv.innerHTML = "<p>Aucune donnée trouvée.</p>";
+        } else {
+            const total = data.length;
+            const protecting = data.filter(i => i.color === 'success').length;
+            const overProtected = data.filter(i => i.color === 'warning').length;
+            const notProtected = data.filter(i => i.color === 'danger').length;
+
+            summaryDiv.innerHTML = `
+                <p><strong>Résumé :</strong></p>
+                <ul>
+                    <li>✅ Protecting : ${protecting} (${Math.round(protecting/total*100)}%)</li>
+                    <li>⚠️ Surprotégées : ${overProtected} (${Math.round(overProtected/total*100)}%)</li>
+                    <li>❌ Non protégées : ${notProtected} (${Math.round(notProtected/total*100)}%)</li>
+                </ul>
+            `;
+
+            data.forEach(item => {
+                const div = document.createElement("div");
+                div.className = `result ${item.color}`;
+                div.innerHTML = `
+                    <strong>${item.icon} ${item.designation}</strong><br>
+                    Potentiel mesuré : <code>${item.potON} mV</code><br>
+                    ${item.status}
+                `;
+                resultsDiv.appendChild(div);
+            });
+        }
+     // Fonction pour réinitialiser l'analyse
+	    function resetAnalysis() {
+	        document.getElementById('results').style.display = 'none';
+	        document.getElementById('summary').innerHTML = '';
+	        console.log("Analyse réinitialisée");
+	    }
+       
+     
+    </script>
+</body>
+</html>
